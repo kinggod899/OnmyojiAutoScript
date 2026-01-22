@@ -101,8 +101,11 @@ class Script:
         if self.config.script.error.save_error:
             if not os.path.exists('./log/error'):
                 os.mkdir('./log/error')
-            folder = f'./log/error/{int(time.time() * 1000)}'
+            folder_name = str(int(time.time() * 1000))
+            folder = f'./log/error/{folder_name}'
             logger.warning(f'Saving error: {folder}')
+            logger.info('保存详细错误的日志和截图到路径:')
+            logger.info(f'{str( Path.cwd() / "log" / "error" / folder_name)}')
             os.mkdir(folder)
             for data in self.device.screenshot_deque:
                 image_time = datetime.strftime(data['time'], '%Y-%m-%d_%H-%M-%S-%f')
@@ -356,6 +359,9 @@ class Script:
         # 处理御魂溢出
         from tasks.Utils.post_diagnotor import PostDiagnotor, AnalyzeType
         image = getattr(self.device, 'image', None)
+        # image为None则不做处理
+        if image is None:
+            return
         analyse_type = PostDiagnotor().handle(e=e, command=command, image=image)
         if analyse_type == AnalyzeType.SoulOverflow:
             self.config.task_call('SoulsTidy')
